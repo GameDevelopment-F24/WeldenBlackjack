@@ -113,7 +113,6 @@ public class Card : MonoBehaviour
     public void ReturnToDeck(){
         targetPos = startPos;
         isMoving = true;
-        isFlipping = false;
     }
     public void ResetCard()
     {

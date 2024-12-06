@@ -110,7 +110,7 @@ public class GameManager : MonoBehaviour
 		player.handVal += player.hand[1].GetCardValue();
 		playerScore.text = "Hand: " + player.handVal.ToString();
 		yield return new WaitForSeconds(0.5f);
-		deck.Deal2ndCard(dealer);
+		deck.DealCard(dealer);
 	}
 
     private void DealClicked()
