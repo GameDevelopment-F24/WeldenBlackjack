@@ -89,7 +89,7 @@ public class Deck : MonoBehaviour
 	public Card DealCard(Player player)
 	{
 		Vector2 pos = CalculateHandPostion(player);
-		Card card = Instantiate(cardBack, pos, Quaternion.identity);
+		Card card = Instantiate(cardBack, deckPos, Quaternion.identity);
 		card.ChangeBackSprite(cards[0]); //seems redundant
 		card.SetCardValue(cardValues[currentIndex]);
 		// Debug.Log(cardValues[currentIndex]);

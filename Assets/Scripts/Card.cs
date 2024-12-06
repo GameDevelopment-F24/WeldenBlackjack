@@ -53,11 +53,7 @@ public class Card : MonoBehaviour
     {
         StartCoroutine(RotateCard());
     }
-    // public void MoveToHand()
-    // {
-    //     Vector2 direction = (targetPos - (Vector2)transform.position).normalized;
-    //     transform.Translate(direction * 15f * Time.deltaTime);
-    // }
+
     public void MoveToHand()
 {
     Vector2 direction = (targetPos - (Vector2)transform.position);

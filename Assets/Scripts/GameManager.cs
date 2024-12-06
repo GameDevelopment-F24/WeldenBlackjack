@@ -51,6 +51,8 @@ public class GameManager : MonoBehaviour
 		Debug.Log("CardDealt");
 	}
 
+
+
 	private void InitButtons()
 	{
 		dealButton.onClick.AddListener(() => DealClicked());
@@ -90,45 +92,40 @@ public class GameManager : MonoBehaviour
 		}
      }
 
-	IEnumerator DealCards()
-	{
+	IEnumerator DealCards(){
+		deck.DealCard(player);
+		yield return new WaitForSeconds(0.5f);
 		player.hand[0].FlipCard();
 		player.handVal += player.hand[0].GetCardValue();
+		playerScore.text = "Hand: " + player.handVal.ToString();
+		yield return new WaitForSeconds(0.5f);
+		deck.DealCard(dealer);
 		yield return new WaitForSeconds(0.5f);
 		dealer.hand[0].FlipCard();
 		dealer.handVal += dealer.hand[0].GetCardValue();
 		dealerScore.text = "Hand: " + dealer.handVal.ToString();
 		yield return new WaitForSeconds(0.5f);
+		deck.DealCard(player);
+		yield return new WaitForSeconds(0.5f);
 		player.hand[1].FlipCard();
 		player.handVal += player.hand[1].GetCardValue();
-		Debug.Log(player.hand[1].GetCardValue());
 		playerScore.text = "Hand: " + player.handVal.ToString();
+		yield return new WaitForSeconds(0.5f);
+		deck.DealCard(dealer);
 	}
-
-	 private bool firstDeal = true;
 
     private void DealClicked()
 	{
-		if(firstDeal){
-			firstDeal = false;
-			InitPlayerHand(player);
-			InitPlayerHand(dealer);
-		}
-
         winnerText.gameObject.SetActive(false);
 		StartCoroutine(DealCards());
-
         dealButton.interactable = false;
 		betTwentyFive.interactable = false;
 		betHundered.interactable = false;
 		betFifty.interactable = false;
         hitButton.interactable = true;
         standButton.interactable = true;
-
         betAmount.text = "Bet: $" + totalBet.ToString();
-
 		playerMoney.text = "$" + player.GetMoney().ToString();
-
 	}
 	IEnumerator HitCard(Player plr, Card card)
 	{
@@ -183,13 +180,11 @@ public class GameManager : MonoBehaviour
 			yield return new WaitForSeconds(0.1f);
 			card.FlipCard();
 			yield return new WaitForSeconds(0.1f);
-			// Destroy(card.gameObject);
 		}
 		foreach (Card card in dealer.hand){
 			yield return new WaitForSeconds(0.1f);
 			card.FlipCard();
 			yield return new WaitForSeconds(0.1f);
-			// Destroy(card.gameObject);
 		}
 		yield return new WaitForSeconds(1f);
 		player.ResetHand();
@@ -200,7 +195,6 @@ public class GameManager : MonoBehaviour
 	}
 
 	private void NewRound(){
-		firstDeal = true;
 		firstStand = true;
 		roundOver = false;
 		StartCoroutine(ResetCards());
