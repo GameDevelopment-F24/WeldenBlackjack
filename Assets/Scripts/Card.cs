@@ -32,7 +32,6 @@ public class Card : MonoBehaviour
             MoveToHand();
         }
         if(atTargetPos() && flipCount == 0){
-            // FlipCard();
             isMoving = false;
             flipCount++;
         }
@@ -48,35 +47,26 @@ public class Card : MonoBehaviour
         isMoving = true;
     }
 
-
     public void FlipCard()
     {
         StartCoroutine(RotateCard());
     }
 
     public void MoveToHand()
-{
-    Vector2 direction = (targetPos - (Vector2)transform.position);
-    
-    // Stop moving if close to target position
-    if (direction.magnitude < 0.1f) // 0.1f is a small threshold; adjust as needed
     {
-        transform.position = targetPos; // Snap to target
-        return;
+        Vector2 direction = (targetPos - (Vector2)transform.position);
+        if (direction.magnitude < 0.1f)
+        {
+        transform.position = targetPos;
+            return;
+        }
+        direction = direction.normalized;
+        transform.Translate(direction * 15f * Time.deltaTime);
     }
-
-    // Normalize direction and translate
-    direction = direction.normalized;
-    transform.Translate(direction * 15f * Time.deltaTime);
-}
-
 
     private IEnumerator RotateCard()
     {
-        coroutineAllowed = false;
-
-        if (!faceUp)
-        {
+        if (!faceUp){
             for (float i = 0f; i <= 180f; i += 10f)
             {
                 transform.localRotation = Quaternion.Euler(0f, i, 0f);
@@ -87,9 +77,7 @@ public class Card : MonoBehaviour
                 }
                 yield return new WaitForSeconds(0.01f);
             }
-        }
-        else if (faceUp)
-        {
+        }else if (faceUp){
             for (float i = 180f; i >= 0f; i -= 10f)
             {
                 transform.localRotation = Quaternion.Euler(0f, i, 0f);
@@ -101,8 +89,6 @@ public class Card : MonoBehaviour
                 yield return new WaitForSeconds(0.01f);
             }
         }
-        coroutineAllowed = true;
-
         faceUp = !faceUp;
     }
 
@@ -129,8 +115,6 @@ public class Card : MonoBehaviour
     public void ReturnToDeck(){
         targetPos = startPos;
         isMoving = true;
-        // MoveToHand();
-        // Destroy(gameObject);
     }
     public void ResetCard()
     {

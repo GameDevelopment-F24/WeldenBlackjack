@@ -21,7 +21,6 @@ public class Player : MonoBehaviour
 	public void AddCardToHand(Card card)
 	{
 		hand.Add(card);
-		// handVal += card.GetCardValue();
 		drawNum++;
 	}
 
@@ -38,7 +37,6 @@ public class Player : MonoBehaviour
 		}
 	}
 
-
 	public void AceCheck()
 	{
 		foreach (Card ace in aceList){
@@ -52,19 +50,19 @@ public class Player : MonoBehaviour
 			}
 		}
 	}
+
 	public void AdjustMoney(int amount)
 	{
 		money += amount;
 	}
+
 	public int GetMoney()
 	{
 		return money;
 	}
+
 	public void ResetHand()
 	{
-		// foreach (Card card in hand){
-		// 	Destroy(card.gameObject);
-		// }
 		foreach (Card card in hand){
 			card.ReturnToDeck();
 		}

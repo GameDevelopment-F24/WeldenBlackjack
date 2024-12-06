@@ -14,7 +14,6 @@ public class Deck : MonoBehaviour
 	int[] cardValues = new int[53];
 	int currentIndex = 1;
 
-
 	public Vector2 deckPos;
 
 	void Start()
@@ -67,6 +66,7 @@ public class Deck : MonoBehaviour
 			cardValues[r] = valTemp;
 		}
 	}
+
 	public Vector2 CalculateHandPostion(Player player){
 	float x = -1.6f + (player.drawNum * 1.1f);
 		float y = 0;
@@ -92,13 +92,13 @@ public class Deck : MonoBehaviour
 		Card card = Instantiate(cardBack, deckPos, Quaternion.identity);
 		card.ChangeBackSprite(cards[0]); //seems redundant
 		card.SetCardValue(cardValues[currentIndex]);
-		// Debug.Log(cardValues[currentIndex]);
 		card.ChangeFrontSprite(cards[currentIndex]);
 		card.Deal(pos); 
 		player.AddCardToHand(card);
 		currentIndex++;
 		return card;
 	}
+	
 	public Sprite CardBack()
 	{
 		return cards[0];

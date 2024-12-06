@@ -27,12 +27,10 @@ public class GameManager : MonoBehaviour
 	int totalBet;
 	bool roundOver = false;
 
-
     void Start()
     {
 		InitButtons();
 		InitGameObjects();
-
     }
 
 	private void InitGameObjects()
@@ -51,8 +49,6 @@ public class GameManager : MonoBehaviour
 		Debug.Log("CardDealt");
 	}
 
-
-
 	private void InitButtons()
 	{
 		dealButton.onClick.AddListener(() => DealClicked());
@@ -64,6 +60,7 @@ public class GameManager : MonoBehaviour
 		betAmount.text = "Bet: $" + totalBet.ToString();
 		playerMoney.text = "$" + player.GetMoney().ToString();
 	}
+	
      private void Fifty()
      {
 		if (player.GetMoney() >= 50){
@@ -73,6 +70,7 @@ public class GameManager : MonoBehaviour
          betAmount.text = "Bet: $" + totalBet.ToString();
 		}
      }
+
      private void Hundered()
      {
 		if (player.GetMoney() >= 100){
@@ -82,6 +80,7 @@ public class GameManager : MonoBehaviour
          betAmount.text = "Bets: $" + totalBet.ToString();
 		}
      }
+
      private void TwentyFive()
      {
 		if (player.GetMoney() >= 25){
@@ -127,6 +126,7 @@ public class GameManager : MonoBehaviour
         betAmount.text = "Bet: $" + totalBet.ToString();
 		playerMoney.text = "$" + player.GetMoney().ToString();
 	}
+
 	IEnumerator HitCard(Player plr, Card card)
 	{
 		yield return new WaitForSeconds(0.5f);
@@ -146,6 +146,7 @@ public class GameManager : MonoBehaviour
 			RoundOver();
 		}
 	}
+
 	private void HitClicked()
 	{
 		if (player.hand.Count <= 10){
@@ -153,6 +154,7 @@ public class GameManager : MonoBehaviour
 			StartCoroutine(HitCard(player, card));
 		}
 	}
+
 	IEnumerator HitCardDealer(Player plr){
 		while (dealer.handVal < 21){
 			yield return new WaitForSeconds(1f);
@@ -175,6 +177,7 @@ public class GameManager : MonoBehaviour
 		StartCoroutine(HitCardDealer(dealer));
 
 	}
+
 	IEnumerator ResetCards(){
 		foreach (Card card in player.hand){
 			yield return new WaitForSeconds(0.1f);
@@ -208,21 +211,17 @@ public class GameManager : MonoBehaviour
 		bool dealer21 = dealer.handVal == 21;
 		if(playerBust && dealerBust){
 			winnerText.text = "Both players bust!";
-
 			player.AdjustMoney(totalBet/2);
 		}else if(playerBust || (!dealerBust && dealer.handVal > player.handVal)){
 			roundOver = true;
 			winnerText.text = "Dealer wins!";
-
 		}else if(dealerBust || player.handVal > dealer.handVal){
 			roundOver = true;
 			winnerText.text = "Player wins!";
-
 			player.AdjustMoney(totalBet*2);
 		}else if(player.handVal == dealer.handVal){
 			roundOver = true;
 			winnerText.text = "It's a tie!";
-
 			player.AdjustMoney(totalBet/2);
 		}else{
 			roundOver = false;
@@ -235,12 +234,10 @@ public class GameManager : MonoBehaviour
 			betFifty.interactable = true;
 			winnerText.gameObject.SetActive(true);
 			dealerScore.gameObject.SetActive(true);
-			// hideCard.GetComponent<Renderer>().enabled = false;
 			betAmount.text = "Bet: $0";
 			playerMoney.text = "$" + player.GetMoney().ToString();
 			totalBet = 0;
 			NewRound();
 		}
-
 	}
 }
