@@ -110,7 +110,7 @@ public class GameManager : MonoBehaviour
 		player.handVal += player.hand[1].GetCardValue();
 		playerScore.text = "Hand: " + player.handVal.ToString();
 		yield return new WaitForSeconds(0.5f);
-		deck.DealCard(dealer);
+		deck.Deal2ndCard(dealer);
 	}
 
     private void DealClicked()
@@ -129,11 +129,16 @@ public class GameManager : MonoBehaviour
 
 	IEnumerator HitCard(Player plr, Card card)
 	{
-		yield return new WaitForSeconds(0.5f);
-		card.FlipCard();
+		yield return new WaitForSeconds(1f);
+		if(!card.faceUp){
+			card.FlipCard();
+		}
 		plr.handVal += card.GetCardValue();
 		if (plr.isDealer){
 			dealerScore.text = "Hand: " + plr.handVal.ToString();
+			if(dealer.handVal > player.handVal){
+				RoundOver();
+			}
 		}else{
 			playerScore.text = "Hand: " + plr.handVal.ToString();
 		}
@@ -156,15 +161,19 @@ public class GameManager : MonoBehaviour
 	}
 
 	IEnumerator HitCardDealer(Player plr){
-		while (dealer.handVal < 21){
-			yield return new WaitForSeconds(1f);
+		if (dealer.handVal > player.handVal){
+			RoundOver();
+		}else{
+		while (dealer.handVal < 21 && dealer.handVal <= player.handVal){
+			yield return new WaitForSeconds(2f);
 			Card card = deck.DealCard(plr);
 			yield return new WaitForSeconds(0.5f);
 			card.FlipCard();
 			plr.handVal += card.GetCardValue();
 			dealerScore.text = "Hand: " + plr.handVal.ToString();
 		}
-		if (dealer.handVal >= 21) RoundOver();
+		if (dealer.handVal >= 21 || dealer.handVal > player.handVal) RoundOver();
+		}
 	}
 
 	private bool firstStand = true;
@@ -174,20 +183,19 @@ public class GameManager : MonoBehaviour
 			firstStand = false;
         	StartCoroutine(HitCard(dealer, dealer.hand[1]));
 		}
-		StartCoroutine(HitCardDealer(dealer));
+
+		//it keeps hitting after the dealer has won on his second card
+		if (dealer.handVal <= player.handVal) StartCoroutine(HitCardDealer(dealer));
 
 	}
 
 	IEnumerator ResetCards(){
+		yield return new WaitForSeconds(4f);
 		foreach (Card card in player.hand){
-			yield return new WaitForSeconds(0.1f);
 			card.FlipCard();
-			yield return new WaitForSeconds(0.1f);
 		}
 		foreach (Card card in dealer.hand){
-			yield return new WaitForSeconds(0.1f);
 			card.FlipCard();
-			yield return new WaitForSeconds(0.1f);
 		}
 		yield return new WaitForSeconds(1f);
 		player.ResetHand();
@@ -223,6 +231,9 @@ public class GameManager : MonoBehaviour
 			roundOver = true;
 			winnerText.text = "It's a tie!";
 			player.AdjustMoney(totalBet/2);
+		}else if (!firstStand && dealer.handVal > player.handVal){
+			roundOver = true;
+			winnerText.text = "Dealer wins!";
 		}else{
 			roundOver = false;
 		}if (roundOver){

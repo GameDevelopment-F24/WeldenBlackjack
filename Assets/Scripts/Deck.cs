@@ -98,7 +98,7 @@ public class Deck : MonoBehaviour
 		currentIndex++;
 		return card;
 	}
-	
+
 	public Sprite CardBack()
 	{
 		return cards[0];

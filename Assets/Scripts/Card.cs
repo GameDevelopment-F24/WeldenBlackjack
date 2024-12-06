@@ -14,15 +14,13 @@ public class Card : MonoBehaviour
     private Vector2 startPos = new Vector2(-4.6f, 3.5f);
     private bool isMoving;
     private Vector2 targetPos;
-    private int flipCount = 0;
 
-    private bool coroutineAllowed, faceUp;
+    public bool faceUp;
 
     void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         spriteRenderer.sprite = cardBack;
-        coroutineAllowed = true;
         faceUp = false;
     }
     public void Update()
@@ -31,9 +29,9 @@ public class Card : MonoBehaviour
         {
             MoveToHand();
         }
-        if(atTargetPos() && flipCount == 0){
+
+        if(atTargetPos()){
             isMoving = false;
-            flipCount++;
         }
     }
 
@@ -57,11 +55,11 @@ public class Card : MonoBehaviour
         Vector2 direction = (targetPos - (Vector2)transform.position);
         if (direction.magnitude < 0.1f)
         {
-        transform.position = targetPos;
+            transform.position = targetPos;
             return;
         }
         direction = direction.normalized;
-        transform.Translate(direction * 15f * Time.deltaTime);
+        transform.Translate(direction * 20f * Time.deltaTime);
     }
 
     private IEnumerator RotateCard()
@@ -115,6 +113,7 @@ public class Card : MonoBehaviour
     public void ReturnToDeck(){
         targetPos = startPos;
         isMoving = true;
+        isFlipping = false;
     }
     public void ResetCard()
     {
