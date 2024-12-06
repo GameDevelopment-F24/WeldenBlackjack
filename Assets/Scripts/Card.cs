@@ -53,11 +53,26 @@ public class Card : MonoBehaviour
     {
         StartCoroutine(RotateCard());
     }
+    // public void MoveToHand()
+    // {
+    //     Vector2 direction = (targetPos - (Vector2)transform.position).normalized;
+    //     transform.Translate(direction * 15f * Time.deltaTime);
+    // }
     public void MoveToHand()
+{
+    Vector2 direction = (targetPos - (Vector2)transform.position);
+    
+    // Stop moving if close to target position
+    if (direction.magnitude < 0.1f) // 0.1f is a small threshold; adjust as needed
     {
-        Vector2 direction = (targetPos - (Vector2)transform.position).normalized;
-        transform.Translate(direction * 15f * Time.deltaTime);
+        transform.position = targetPos; // Snap to target
+        return;
     }
+
+    // Normalize direction and translate
+    direction = direction.normalized;
+    transform.Translate(direction * 15f * Time.deltaTime);
+}
 
 
     private IEnumerator RotateCard()

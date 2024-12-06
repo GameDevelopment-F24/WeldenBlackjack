@@ -180,15 +180,15 @@ public class GameManager : MonoBehaviour
 	}
 	IEnumerator ResetCards(){
 		foreach (Card card in player.hand){
-			yield return new WaitForSeconds(0.5f);
+			yield return new WaitForSeconds(0.1f);
 			card.FlipCard();
-			yield return new WaitForSeconds(0.5f);
+			yield return new WaitForSeconds(0.1f);
 			// Destroy(card.gameObject);
 		}
 		foreach (Card card in dealer.hand){
-			yield return new WaitForSeconds(0.5f);
+			yield return new WaitForSeconds(0.1f);
 			card.FlipCard();
-			yield return new WaitForSeconds(0.5f);
+			yield return new WaitForSeconds(0.1f);
 			// Destroy(card.gameObject);
 		}
 		yield return new WaitForSeconds(1f);
