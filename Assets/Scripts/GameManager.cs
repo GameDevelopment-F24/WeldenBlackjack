@@ -41,14 +41,6 @@ public class GameManager : MonoBehaviour
 		dealer.SetDealer(true);
 	}
 
-	private void InitPlayerHand(Player plr)
-	{
-		deck.DealCard(plr);
-		Debug.Log("CardDealt");
-		deck.DealCard(plr);
-		Debug.Log("CardDealt");
-	}
-
 	private void InitButtons()
 	{
 		dealButton.onClick.AddListener(() => DealClicked());
@@ -165,7 +157,7 @@ public class GameManager : MonoBehaviour
 			RoundOver();
 		}else{
 		while (dealer.handVal < 21 && dealer.handVal <= player.handVal){
-			yield return new WaitForSeconds(2f);
+			yield return new WaitForSeconds(1f);
 			Card card = deck.DealCard(plr);
 			yield return new WaitForSeconds(0.5f);
 			card.FlipCard();
@@ -176,16 +168,40 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
+	IEnumerator fstHitCardDealer(Player plr, Card card)
+	{
+		yield return new WaitForSeconds(1f);
+		if(!card.faceUp){
+			card.FlipCard();
+		}
+		plr.handVal += card.GetCardValue();
+		if (plr.isDealer){
+			dealerScore.text = "Hand: " + plr.handVal.ToString();
+			if(dealer.handVal > player.handVal){
+				RoundOver();
+			}
+		if (plr.handVal > 20) {
+			if(firstStand){
+				dealer.hand[1].FlipCard();
+				dealer.handVal += dealer.hand[1].GetCardValue();
+				dealerScore.text = "Hand: " + dealer.handVal.ToString();
+			}
+			RoundOver();
+		}
+		if (dealer.handVal <= player.handVal) StartCoroutine(HitCardDealer(dealer));
+		}
+	}
+
 	private bool firstStand = true;
 	private void StandClicked()
 	{
 		if (firstStand){
 			firstStand = false;
-        	StartCoroutine(HitCard(dealer, dealer.hand[1]));
+        	StartCoroutine(fstHitCardDealer(dealer, dealer.hand[1]));
 		}
 
 		//it keeps hitting after the dealer has won on his second card
-		if (dealer.handVal <= player.handVal) StartCoroutine(HitCardDealer(dealer));
+		
 
 	}
 
@@ -249,6 +265,15 @@ public class GameManager : MonoBehaviour
 			playerMoney.text = "$" + player.GetMoney().ToString();
 			totalBet = 0;
 			NewRound();
+		}
+		if(player.GetMoney() <= 0){
+			winnerText.text = "You're out of money!";
+			playerScore.gameObject.SetActive(false);
+			dealerScore.gameObject.SetActive(false);
+			dealButton.interactable = false;
+			betTwentyFive.interactable = false;
+			betHundered.interactable = false;
+			betFifty.interactable = false;
 		}
 	}
 }
