@@ -11,37 +11,57 @@ public class GameManager : MonoBehaviour
 	public Button dealButton;
 	public Button hitButton;
 	public Button standButton;
-
 	public Button betFifty;
 	public Button betHundered;
 	public Button betTwentyFive;
-
-	public Player player;
-	public Player dealer;
-
 	public TextMeshProUGUI playerScore;
 	public TextMeshProUGUI dealerScore;
 	public TextMeshProUGUI playerMoney;
 	public TextMeshProUGUI betAmount;
 	public TextMeshProUGUI winnerText;
 
-	public GameObject hideCard;
+	public Player player;
+	public Player dealer;
+	public Deck deck;
 
 	int totalBet;
 	bool roundOver = false;
 
 
     void Start()
-    	{
-        	dealButton.onClick.AddListener(() => DealClicked());
-        	hitButton.onClick.AddListener(() => HitClicked());
-        	standButton.onClick.AddListener(() => StandClicked());
-            betFifty.onClick.AddListener(() => Fifty());
-            betHundered.onClick.AddListener(() => Hundered());
-            betTwentyFive.onClick.AddListener(() => TwentyFive());
-            betAmount.text = "Bet: $" + totalBet.ToString();
-		    playerMoney.text = "$" + player.GetMoney().ToString();
-    	}
+    {
+		InitButtons();
+		InitGameObjects();
+
+    }
+
+	private void InitGameObjects()
+	{
+		deck = Instantiate(deck, new Vector2(-4.6f, 3.5f), Quaternion.identity);
+		player = Instantiate(player, new Vector2(0, 0), Quaternion.identity);
+		dealer = Instantiate(dealer, new Vector2(0, 0), Quaternion.identity);
+		dealer.SetDealer(true);
+	}
+
+	private void InitPlayerHand(Player plr)
+	{
+		deck.DealCard(plr);
+		Debug.Log("CardDealt");
+		deck.DealCard(plr);
+		Debug.Log("CardDealt");
+	}
+
+	private void InitButtons()
+	{
+		dealButton.onClick.AddListener(() => DealClicked());
+		hitButton.onClick.AddListener(() => HitClicked());
+		standButton.onClick.AddListener(() => StandClicked());
+		betFifty.onClick.AddListener(() => Fifty());
+		betHundered.onClick.AddListener(() => Hundered());
+		betTwentyFive.onClick.AddListener(() => TwentyFive());
+		betAmount.text = "Bet: $" + totalBet.ToString();
+		playerMoney.text = "$" + player.GetMoney().ToString();
+	}
      private void Fifty()
      {
 		if (player.GetMoney() >= 50){
@@ -70,25 +90,34 @@ public class GameManager : MonoBehaviour
 		}
      }
 
+	IEnumerator DealCards()
+	{
+		player.hand[0].FlipCard();
+		player.handVal += player.hand[0].GetCardValue();
+		yield return new WaitForSeconds(0.5f);
+		dealer.hand[0].FlipCard();
+		dealer.handVal += dealer.hand[0].GetCardValue();
+		dealerScore.text = "Hand: " + dealer.handVal.ToString();
+		yield return new WaitForSeconds(0.5f);
+		player.hand[1].FlipCard();
+		player.handVal += player.hand[1].GetCardValue();
+		Debug.Log(player.hand[1].GetCardValue());
+		playerScore.text = "Hand: " + player.handVal.ToString();
+	}
+
+	 private bool firstDeal = true;
+
     private void DealClicked()
 	{
-        player.ResetHand();
-        dealer.ResetHand();
-        winnerText.gameObject.SetActive(false);
-        hideCard.gameObject.SetActive(true);
-		GameObject.Find("Deck").GetComponent<Deck>().Shuffle();
-		player.StartHand();
-        playerScore.text = "Hand: " + player.handVal.ToString();
-		dealerScore.text = "Hand: " + dealer.StartHandDealer().ToString();
-		StartCoroutine(UpdateHandVal());
-
-		IEnumerator UpdateHandVal() {
-			yield return new WaitForSeconds(1f);
-			playerScore.text = "Hand: " + player.handVal.ToString();
-			if (player.handVal >= 21) RoundOver();
+		if(firstDeal){
+			firstDeal = false;
+			InitPlayerHand(player);
+			InitPlayerHand(dealer);
 		}
 
-        hideCard.GetComponent<Renderer>().enabled = true;
+        winnerText.gameObject.SetActive(false);
+		StartCoroutine(DealCards());
+
         dealButton.interactable = false;
 		betTwentyFive.interactable = false;
 		betHundered.interactable = false;
@@ -101,33 +130,80 @@ public class GameManager : MonoBehaviour
 		playerMoney.text = "$" + player.GetMoney().ToString();
 
 	}
-	private void HitClicked()
+	IEnumerator HitCard(Player plr, Card card)
 	{
-		if (player.cardIndex <= 10){
-			player.GetCard();
-			playerScore.text = "Hand: " + player.handVal.ToString();
-			
-			if (player.handVal > 20) StartCoroutine(DelayRoundOver());
-
-			IEnumerator DelayRoundOver() {
-				yield return new WaitForSeconds(1f);
-				RoundOver();
+		yield return new WaitForSeconds(0.5f);
+		card.FlipCard();
+		plr.handVal += card.GetCardValue();
+		if (plr.isDealer){
+			dealerScore.text = "Hand: " + plr.handVal.ToString();
+		}else{
+			playerScore.text = "Hand: " + plr.handVal.ToString();
+		}
+		if (plr.handVal > 20) {
+			if(firstStand){
+				dealer.hand[1].FlipCard();
+				dealer.handVal += dealer.hand[1].GetCardValue();
+				dealerScore.text = "Hand: " + dealer.handVal.ToString();
 			}
+			RoundOver();
 		}
 	}
+	private void HitClicked()
+	{
+		if (player.hand.Count <= 10){
+			Card card = deck.DealCard(player);
+			StartCoroutine(HitCard(player, card));
+		}
+	}
+	IEnumerator HitCardDealer(Player plr){
+		while (dealer.handVal < 21){
+			yield return new WaitForSeconds(1f);
+			Card card = deck.DealCard(plr);
+			yield return new WaitForSeconds(0.5f);
+			card.FlipCard();
+			plr.handVal += card.GetCardValue();
+			dealerScore.text = "Hand: " + plr.handVal.ToString();
+		}
+		if (dealer.handVal >= 21) RoundOver();
+	}
+
+	private bool firstStand = true;
 	private void StandClicked()
 	{
-        hideCard.GetComponent<Renderer>().enabled = false;
-        dealerScore.text = "Hand: " + dealer.handVal.ToString();
-        StartCoroutine(DealerDrawCard());
-        IEnumerator DealerDrawCard() {
-            while (dealer.handVal < 21) {
-                yield return new WaitForSeconds(1f);
-                dealer.GetCard();
-                dealerScore.text = "Hand: " + dealer.handVal.ToString();
-				if (dealer.handVal >= 21) RoundOver();
-            }
-        }
+		if (firstStand){
+			firstStand = false;
+        	StartCoroutine(HitCard(dealer, dealer.hand[1]));
+		}
+		StartCoroutine(HitCardDealer(dealer));
+
+	}
+	IEnumerator ResetCards(){
+		foreach (Card card in player.hand){
+			yield return new WaitForSeconds(0.5f);
+			card.FlipCard();
+			yield return new WaitForSeconds(0.5f);
+			// Destroy(card.gameObject);
+		}
+		foreach (Card card in dealer.hand){
+			yield return new WaitForSeconds(0.5f);
+			card.FlipCard();
+			yield return new WaitForSeconds(0.5f);
+			// Destroy(card.gameObject);
+		}
+		yield return new WaitForSeconds(1f);
+		player.ResetHand();
+		dealer.ResetHand();
+		deck.Shuffle();
+		dealerScore.text = "Hand: 0";
+		playerScore.text = "Hand: 0";
+	}
+
+	private void NewRound(){
+		firstDeal = true;
+		firstStand = true;
+		roundOver = false;
+		StartCoroutine(ResetCards());
 	}
 
 	void RoundOver()
@@ -165,10 +241,11 @@ public class GameManager : MonoBehaviour
 			betFifty.interactable = true;
 			winnerText.gameObject.SetActive(true);
 			dealerScore.gameObject.SetActive(true);
-			hideCard.GetComponent<Renderer>().enabled = false;
+			// hideCard.GetComponent<Renderer>().enabled = false;
 			betAmount.text = "Bet: $0";
 			playerMoney.text = "$" + player.GetMoney().ToString();
 			totalBet = 0;
+			NewRound();
 		}
 
 	}

@@ -4,51 +4,41 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-	// public Card card;
-	public Deck deck;
+	public int drawNum = 1;
+	public bool isDealer = false;
 
 	public int handVal = 0;
 	private int money = 1000;
 
-	public Card[] hand;
-
-	public int cardIndex = 1;
-
+	public List<Card> hand = new List<Card>();
 	List<Card> aceList = new List<Card>();
 
-	public void StartHand()
+	public void SetDealer(bool isDealer)
 	{
-		int c1 = GetCard();
-		StartCoroutine(DelaySecondCard());
-
-		IEnumerator DelaySecondCard() {
-			yield return new WaitForSeconds(1f);
-			int c2 = GetCard();
-		}
-	}
-	public int StartHandDealer()
-	{
-		int c1 = GetCard();
-		int c2 = GetCard();
-		return c1;
+		this.isDealer = isDealer;
 	}
 
-	
-	public int GetCard()
+	public void AddCardToHand(Card card)
 	{
-		// Debug.Log(cardIndex);
-		int cardVal = deck.DealCard(hand[cardIndex].GetComponent<Card>());
-		hand[cardIndex].GetComponent<Renderer>().enabled = true;
-		// Debug.Log("Flipped card: " + hand[cardIndex].GetComponent<Card>().GetCardName());
-		handVal += cardVal;
-		if (cardVal == 1)
-		{
-			aceList.Add(hand[cardIndex].GetComponent<Card>());
-		}
-		AceCheck();
-		cardIndex++;
-		return handVal;
+		hand.Add(card);
+		// handVal += card.GetCardValue();
+		drawNum++;
 	}
+
+	public void FlipHand(){
+		if (isDealer){
+			hand[0].FlipCard();
+			handVal += hand[0].GetCardValue();
+		}else{
+			foreach (Card card in hand){
+				card.FlipCard();
+				Debug.Log(card.GetCardValue());
+				handVal += card.GetCardValue();
+			}
+		}
+	}
+
+
 	public void AceCheck()
 	{
 		foreach (Card ace in aceList){
@@ -60,7 +50,6 @@ public class Player : MonoBehaviour
 				handVal -= 10;
 				ace.SetCardValue(1);
 			}
-			
 		}
 	}
 	public void AdjustMoney(int amount)
@@ -73,14 +62,15 @@ public class Player : MonoBehaviour
 	}
 	public void ResetHand()
 	{
-		for(int i = 0; i < hand.Length; i++)
-		{
-			// hand[i].GetComponent<Card>().ResetCard();
-			hand[i].ResetCard();
-			hand[i].GetComponent<Renderer>().enabled = false;
+		// foreach (Card card in hand){
+		// 	Destroy(card.gameObject);
+		// }
+		foreach (Card card in hand){
+			card.ReturnToDeck();
 		}
+		hand.Clear();
 		handVal = 0;
-		cardIndex = 0;
+		drawNum = 1;
 		aceList.Clear();
 	}
 }

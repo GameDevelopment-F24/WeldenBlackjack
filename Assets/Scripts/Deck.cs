@@ -6,13 +6,39 @@ using UnityEngine;
 
 public class Deck : MonoBehaviour
 {
+	public Card cardBack;
+	public Sprite whiteCardBack;
+	public Sprite blackCardBack;
+
 	public Sprite[] cards;
 	int[] cardValues = new int[53];
 	int currentIndex = 1;
 
+
+	public Vector2 deckPos;
+
 	void Start()
 	{
+		SetCardBack();
 		GetCardValues();
+		Shuffle();
+	}
+
+	public void SetCardBack()
+	{
+		SpriteRenderer sr = GetComponent<SpriteRenderer>();
+		if (CardType.GetCardType() == CardType.CardColor.White)
+		{
+			cardBack.ChangeBackSprite(whiteCardBack);
+			cards[0] = whiteCardBack;
+			sr.sprite = whiteCardBack;
+		}
+		else if (CardType.GetCardType() == CardType.CardColor.Black)
+		{
+			cardBack.ChangeBackSprite(blackCardBack);
+			cards[0] = blackCardBack;
+			sr.sprite = blackCardBack;
+		}
 	}
 
 	void GetCardValues()
@@ -41,12 +67,37 @@ public class Deck : MonoBehaviour
 			cardValues[r] = valTemp;
 		}
 	}
-	public int DealCard(Card card)
+	public Vector2 CalculateHandPostion(Player player){
+	float x = -1.6f + (player.drawNum * 1.1f);
+		float y = 0;
+		if (!player.isDealer){
+			if (player.drawNum <= 2){
+				y = -3f;
+			}else{
+				y = -2.5f;
+			}
+		}else if (player.isDealer){	
+			if( player.drawNum <= 2){
+				y = 3f;
+			}else{
+				y = 2.5f;
+			}
+		}
+		return new Vector2(x, y);
+	}
+
+	public Card DealCard(Player player)
 	{
+		Vector2 pos = CalculateHandPostion(player);
+		Card card = Instantiate(cardBack, pos, Quaternion.identity);
+		card.ChangeBackSprite(cards[0]); //seems redundant
 		card.SetCardValue(cardValues[currentIndex]);
-		card.ChangeSprite(cards[currentIndex]);
+		// Debug.Log(cardValues[currentIndex]);
+		card.ChangeFrontSprite(cards[currentIndex]);
+		card.Deal(pos); 
+		player.AddCardToHand(card);
 		currentIndex++;
-		return card.GetCardValue();
+		return card;
 	}
 	public Sprite CardBack()
 	{
