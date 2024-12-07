@@ -12,7 +12,7 @@ public class Deck : MonoBehaviour
 
 	public Sprite[] cards;
 	int[] cardValues = new int[53];
-	int currentIndex = 1;
+	public int currentIndex = 1;
 
 	public Vector2 deckPos;
 
